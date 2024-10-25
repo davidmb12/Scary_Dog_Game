@@ -4,7 +4,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.TextCore.LowLevel;
 
-public class TimeManager : MonoBehaviour
+public class TimeManager : MonoBehaviour,IUpdateObserver
 {
     [SerializeField] private Texture2D skyboxNight;
     [SerializeField] private Texture2D skyboxSunrise;
@@ -23,32 +23,21 @@ public class TimeManager : MonoBehaviour
     private int minutes;
     private int hours;
     private int days;
+    private float tempSeconds;
 
     public float sunSpeed = 100.0f;
     private void Awake()
     {
         
     }
-    private void Start()
+    private void OnEnable()
     {
-
+        UpdateManager.RegisterObserver(this);
     }
-    private float tempSeconds;
-    public void Update()
+    private void OnDisable()
     {
-        tempSeconds+= Time.deltaTime;
-        globalLight.transform.Rotate(Vector3.up, (1f / 1440f) * 360f *Time.deltaTime, Space.World);
-
-        if (tempSeconds >=1)
-        {
-            Minutes += 1;
-            tempSeconds = 0;
-        }
-        Debug.Log(Days);
-        Debug.Log(Hours);
-        Debug.Log(Minutes);
+        UpdateManager.UnregisterObserver(this);
     }
-    
     private void OnMinutesChange(int value)
     {
         if (value >= 60)
@@ -113,5 +102,18 @@ public class TimeManager : MonoBehaviour
             globalLight.color = lightGradient.Evaluate(i / time);
             yield return null;
         }
+    }
+
+    public void ObservedUpdate()
+    {
+        tempSeconds += Time.deltaTime;
+        globalLight.transform.Rotate(Vector3.up, tempSeconds / 1440f, Space.World);
+
+        if (tempSeconds >= 1)
+        {
+            Minutes += 1;
+            tempSeconds = 0;
+        }
+        
     }
 }
