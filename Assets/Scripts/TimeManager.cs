@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.TextCore.LowLevel;
 
 public class TimeManager : MonoBehaviour
 {
@@ -22,11 +24,22 @@ public class TimeManager : MonoBehaviour
     private int hours;
     private int days;
 
+    public float sunSpeed = 100.0f;
+    private void Awake()
+    {
+        
+    }
+    private void Start()
+    {
+
+    }
     private float tempSeconds;
     public void Update()
     {
         tempSeconds+= Time.deltaTime;
-        if(tempSeconds >=1)
+        globalLight.transform.Rotate(Vector3.up, (1f / 1440f) * 360f *Time.deltaTime, Space.World);
+
+        if (tempSeconds >=1)
         {
             Minutes += 1;
             tempSeconds = 0;
@@ -35,7 +48,7 @@ public class TimeManager : MonoBehaviour
         Debug.Log(Hours);
         Debug.Log(Minutes);
     }
-
+    
     private void OnMinutesChange(int value)
     {
         if (value >= 60)
